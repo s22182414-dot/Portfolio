@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient -->
+    <radialGradient id="bgGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#161622" />
+      <stop offset="100%" stop-color="#0a0a0f" />
+    </radialGradient>
+    
+    <!-- Text / Shape Accent Gradient -->
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366f1" />
+      <stop offset="50%" stop-color="#a855f7" />
+      <stop offset="100%" stop-color="#ec4899" />
+    </linearGradient>
+    
+    <!-- Drop Shadow / Glow Filter -->
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="12" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Background Base -->
+  <rect width="512" height="512" rx="128" fill="url(#bgGrad)" stroke="rgba(255, 255, 255, 0.05)" stroke-width="8" />
+
+  <!-- Outer Glowing Geometric Shape (Stylized 'S' & 'R' abstract framework) -->
+  <g transform="translate(64, 64)" filter="url(#glow)">
+    <path d="M 192 32 L 320 32 C 340 32 352 44 360 56 L 416 152 C 424 164 424 180 416 192 L 360 288 C 352 300 340 312 320 312 L 192 312 C 172 312 160 300 152 288 L 96 192 C 88 180 88 164 96 152 L 152 56 C 160 44 172 32 192 32 Z" 
+          fill="none" 
+          stroke="url(#accentGrad)" 
+          stroke-width="16" 
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          opacity="0.8"
+          transform="translate(-64, -20) scale(1.2)" />
+  </g>
+
+  <!-- Text Initials SR -->
+  <text x="50%" y="54%" 
+        font-family="'Plus Jakarta Sans', 'Inter', system-ui, sans-serif" 
+        font-size="180" 
+        font-weight="900" 
+        fill="url(#accentGrad)" 
+        text-anchor="middle" 
+        dominant-baseline="middle"
+        letter-spacing="-6"
+        filter="url(#glow)">SR</text>
+
+  <!-- Subtle Bottom Accent Line -->
+  <rect x="180" y="380" width="152" height="12" rx="6" fill="url(#accentGrad)" opacity="0.9" />
+</svg>

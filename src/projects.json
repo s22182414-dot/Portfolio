@@ -1,0 +1,37 @@
+[
+  {
+    "title": "ShopFlow E-Commerce",
+    "desc": "Real vaqtda inventar nazorati, Stripe to'lovlari va administrator paneli bilan ishlaydigan kengayuvchan elektron tijorat platformasi.",
+    "tags": ["Next.js", "TypeScript", "Prisma", "Stripe"],
+    "github": "#",
+    "live": "http://localhost:5173/contact"
+  },
+  {
+    "title": "ShopFlow E-Commerce",
+    "desc": "Real vaqtda inventar nazorati, Stripe to'lovlari va administrator paneli bilan ishlaydigan kengayuvchan elektron tijorat platformasi.",
+    "tags": ["Next.js", "TypeScript", "Prisma", "Stripe"],
+    "github": "#",
+    "live": "#"
+  },
+  {
+    "title": "DataViz Dashboard",
+    "desc": "Real vaqtdagi WebSocket oqimlari va sozlanadigan grafiklar bilan ishlaydigan interaktiv tahlil paneli.",
+    "tags": ["React", "D3.js", "WebSocket", "Node.js"],
+    "github": "#",
+    "live": "#"
+  },
+  {
+    "title": "AI Chat Assistant",
+    "desc": "Kontekst xotirasi, shaxsiy UI va javoblarni translatsiya qilish integratsiyasiga ega aqlli suhbatdosh yordamchi.",
+    "tags": ["React", "OpenAI API", "SSE", "CSS"],
+    "github": "#",
+    "live": "#"
+  },
+  {
+    "title": "DevBlog CMS",
+    "desc": "MDX qo'llab-quvvatlashi, sintaksisni yoritish va statik renderlashga ega bo'lgan dasturchilar uchun blog platformasi.",
+    "tags": ["Next.js", "MDX", "TypeScript"],
+    "github": "#",
+    "live": "#"
+  }
+]
