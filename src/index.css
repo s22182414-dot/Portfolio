@@ -959,3 +959,28 @@ html[data-theme="light"] .form-textarea:focus {
   to { transform: translateY(0); opacity: 1; }
 }
 
+/* Prevent selection and copy */
+body {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Prevent image dragging */
+img {
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none;
+  user-drag: none;
+}
+
+/* Hide content when printing or exporting as PDF */
+@media print {
+  body {
+    display: none !important;
+  }
+}
+
+

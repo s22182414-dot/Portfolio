@@ -215,7 +215,7 @@ function Contact() {
             forprosunnatillo.gmail.com
           </a>
           <div className="contact__socials">
-            <a href="#" className="social-link" target="_blank" rel="noreferrer">
+            <a href="https://github.com/s22182414-dot" className="social-link" target="_blank" rel="noreferrer">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight: '6px', verticalAlign: 'middle'}}>
                 <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
               </svg>
@@ -229,7 +229,7 @@ function Contact() {
               </svg>
               Rezyume (CV)
             </a>
-            <a href="#" className="social-link" target="_blank" rel="noreferrer">
+            <a href="https://t.me/s_numonivich" className="social-link" target="_blank" rel="noreferrer">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight: '6px', verticalAlign: 'middle'}}>
                 <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"></path>
               </svg>
@@ -571,6 +571,48 @@ export default function App() {
     document.documentElement.setAttribute('data-theme', theme)
     localStorage.setItem('theme', theme)
   }, [theme])
+
+  useEffect(() => {
+    const handleContextMenu = (e: MouseEvent) => {
+      e.preventDefault()
+    }
+    document.addEventListener('contextmenu', handleContextMenu)
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'F12') {
+        e.preventDefault()
+        return
+      }
+      if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) {
+        e.preventDefault()
+        return
+      }
+      if (e.ctrlKey && (e.key === 'U' || e.key === 'u')) {
+        e.preventDefault()
+        return
+      }
+      if (e.ctrlKey && (e.key === 'S' || e.key === 's')) {
+        e.preventDefault()
+        return
+      }
+      if (e.ctrlKey && (e.key === 'P' || e.key === 'p')) {
+        e.preventDefault()
+        return
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown)
+
+    const handleCopy = (e: Event) => {
+      e.preventDefault()
+    }
+    document.addEventListener('copy', handleCopy)
+
+    return () => {
+      document.removeEventListener('contextmenu', handleContextMenu)
+      document.removeEventListener('keydown', handleKeyDown)
+      document.removeEventListener('copy', handleCopy)
+    }
+  }, [])
 
   const toggleTheme = () => {
     setTheme(prev => prev === 'light' ? 'dark' : 'light')
