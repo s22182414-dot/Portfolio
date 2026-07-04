@@ -494,12 +494,15 @@ html[data-theme="light"] .theme-toggle:hover {
   justify-content: space-between;
   align-items: center;
   margin-top: auto;
+  gap: 16px;
 }
 
 .project-card__tags {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  flex: 1;
+  min-width: 0;
 }
 
 .project-tag {
@@ -510,6 +513,8 @@ html[data-theme="light"] .theme-toggle:hover {
   padding: 4px 10px;
   border-radius: var(--radius-sm);
   transition: all var(--transition);
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .project-card:hover .project-tag {
@@ -525,6 +530,7 @@ html[data-theme="light"] .theme-toggle:hover {
   position: relative;
   z-index: 2;
   transition: color var(--transition), transform var(--transition);
+  flex-shrink: 0;
 }
 
 .project-card__github-link:hover {

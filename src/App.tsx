@@ -184,9 +184,13 @@ function Projects({ projects }: { projects: Project[] }) {
               </div>
               <div className="project-card__footer">
                 <div className="project-card__tags">
-                  {project.tags.map(t => (
-                    <span key={t} className="project-tag">{t}</span>
-                  ))}
+                  {project.tags
+                    .flatMap(t => t.split(/[;,]/))
+                    .map(t => t.trim())
+                    .filter(Boolean)
+                    .map(t => (
+                      <span key={t} className="project-tag">{t}</span>
+                    ))}
                 </div>
                 <a href={project.github} target="_blank" rel="noreferrer" className="project-card__github-link" title="GitHub">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -312,7 +316,7 @@ function Admin({
     }
 
     const parsedTags = tagsInput
-      .split(',')
+      .split(/[;,]/)
       .map(tag => tag.trim())
       .filter(tag => tag.length > 0);
 
@@ -428,9 +432,13 @@ function Admin({
                     </div>
                     <p className="admin-project-item__desc">{project.desc}</p>
                     <div className="admin-project-item__footer">
-                      {project.tags.map(t => (
-                        <span key={t} className="admin-project-tag">{t}</span>
-                      ))}
+                      {project.tags
+                        .flatMap(t => t.split(/[;,]/))
+                        .map(t => t.trim())
+                        .filter(Boolean)
+                        .map(t => (
+                          <span key={t} className="admin-project-tag">{t}</span>
+                        ))}
                     </div>
                   </div>
                 ))
