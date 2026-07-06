@@ -610,11 +610,13 @@ function Admin({
 function AdminLogin({ 
   onLogin, 
   error, 
-  onNavigate 
+  onNavigate,
+  isVerifying
 }: { 
   onLogin: (pass: string) => void; 
   error: string;
   onNavigate: (path: string, e?: React.MouseEvent) => void;
+  isVerifying: boolean;
 }) {
   const [password, setPassword] = useState('');
 
@@ -643,11 +645,12 @@ function AdminLogin({
               placeholder="••••••••"
               required
               autoFocus
+              disabled={isVerifying}
             />
           </div>
           
-          <button type="submit" className="btn btn--primary" style={{ width: '100%', marginTop: '16px' }}>
-            Kirish
+          <button type="submit" className="btn btn--primary" style={{ width: '100%', marginTop: '16px' }} disabled={isVerifying}>
+            {isVerifying ? 'Tekshirilmoqda...' : 'Kirish'}
           </button>
           
           <a href="/" className="admin-back-link" style={{ marginTop: '24px', justifyContent: 'center', display: 'flex' }} onClick={(e) => onNavigate('/', e)}>
@@ -806,17 +809,60 @@ export default function App() {
     return () => window.removeEventListener('popstate', handlePopState)
   }, [])
 
-  const handleLogin = (password: string) => {
-    setAdminPassword(password)
-    localStorage.setItem('admin_password', password)
-    setLoginError('')
+  const [isVerifying, setIsVerifying] = useState(false)
+
+  const handleLogin = async (password: string) => {
+    try {
+      setIsVerifying(true)
+      setLoginError('')
+      const res = await fetch('/api/verify', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${password}`
+        }
+      })
+      if (res.ok) {
+        setAdminPassword(password)
+        localStorage.setItem('admin_password', password)
+      } else {
+        const data = await res.json()
+        setLoginError(data.error || 'Kiritilgan parol noto\'g\'ri!')
+      }
+    } catch (err: any) {
+      setLoginError('Server bilan bog\'lanishda xatolik yuz berdi.')
+    } finally {
+      setIsVerifying(false)
+    }
   }
 
   const handleUnauthorized = () => {
-    setLoginError('Kiritilgan parol noto\'g\'ri!')
+    setLoginError('Sessiya muddati tugadi yoki parol noto\'g\'ri!')
     setAdminPassword(null)
     localStorage.removeItem('admin_password')
   }
+
+  // Verify stored password on mount / admin route change
+  useEffect(() => {
+    if (adminPassword && currentRoute === '/admin') {
+      const verifyStored = async () => {
+        try {
+          const res = await fetch('/api/verify', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${adminPassword}`
+            }
+          })
+          if (!res.ok) {
+            handleUnauthorized()
+          }
+        } catch (err) {
+          // If network error, don't log out immediately to allow offline/local development fallback,
+          // but handle unauthorized properly.
+        }
+      }
+      verifyStored()
+    }
+  }, [currentRoute, adminPassword])
 
   const isAdmin = currentRoute === '/admin'
 
@@ -831,7 +877,7 @@ export default function App() {
           </div>
         ) : isAdmin ? (
           !adminPassword ? (
-            <AdminLogin onLogin={handleLogin} error={loginError} onNavigate={navigateTo} />
+            <AdminLogin onLogin={handleLogin} error={loginError} onNavigate={navigateTo} isVerifying={isVerifying} />
           ) : (
             <Admin 
               projects={projects} 
