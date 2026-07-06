@@ -246,17 +246,12 @@ function Contact() {
   )
 }
 
-function Footer({ onNavigate }: { onNavigate: (path: string, e: React.MouseEvent) => void }) {
+function Footer() {
   return (
     <footer className="footer">
       <div className="container footer__inner">
         <p>© 2026 Sunnatillo Rustamshayev</p>
-        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-          <p>Minimalist & Premium Portfolio</p>
-          <a href="/admin" className="admin-footer-link" onClick={(e) => onNavigate('/admin', e)}>
-            Admin panel
-          </a>
-        </div>
+        <p>Minimalist & Premium Portfolio</p>
       </div>
     </footer>
   )
@@ -896,7 +891,7 @@ export default function App() {
           </>
         )}
       </main>
-      <Footer onNavigate={navigateTo} />
+      <Footer />
     </>
   )
 }
