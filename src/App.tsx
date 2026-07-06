@@ -265,11 +265,15 @@ function Footer({ onNavigate }: { onNavigate: (path: string, e: React.MouseEvent
 function Admin({ 
   projects, 
   setProjects, 
-  onNavigate 
+  onNavigate,
+  adminPassword,
+  onUnauthorized
 }: { 
   projects: Project[]; 
   setProjects: React.Dispatch<React.SetStateAction<Project[]>>; 
-  onNavigate: (path: string, e?: React.MouseEvent) => void 
+  onNavigate: (path: string, e?: React.MouseEvent) => void;
+  adminPassword: string;
+  onUnauthorized: () => void;
 }) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -308,7 +312,7 @@ function Admin({
   };
 
   // Submit form (add or edit)
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim() || !desc.trim()) {
       setError('Sarlavha va Tavsif maydonlari to\'ldirilishi shart.');
@@ -328,25 +332,58 @@ function Admin({
       live: live.trim() || '#'
     };
 
-    let newProjectsList: Project[];
+    try {
+      if (editingId) {
+        // Editing
+        const res = await fetch('/api/projects', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${adminPassword}`
+          },
+          body: JSON.stringify({ id: editingId, ...updatedProjectData })
+        });
 
-    if (editingId) {
-      // Editing
-      newProjectsList = projects.map(p => 
-        p.id === editingId ? { ...p, ...updatedProjectData } : p
-      );
-    } else {
-      // Adding new
-      const newProject: Project = {
-        id: `project-${Date.now()}`,
-        ...updatedProjectData
-      };
-      newProjectsList = [...projects, newProject];
+        if (res.status === 401) {
+          onUnauthorized();
+          return;
+        }
+
+        if (!res.ok) {
+          const errData = await res.json();
+          throw new Error(errData.error || 'Xatolik yuz berdi.');
+        }
+
+        const updatedProject = await res.json();
+        setProjects(prev => prev.map(p => p.id === editingId ? updatedProject : p));
+      } else {
+        // Adding new
+        const res = await fetch('/api/projects', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${adminPassword}`
+          },
+          body: JSON.stringify({ title: updatedProjectData.title, desc: updatedProjectData.desc, tags: updatedProjectData.tags, github: updatedProjectData.github, live: updatedProjectData.live })
+        });
+
+        if (res.status === 401) {
+          onUnauthorized();
+          return;
+        }
+
+        if (!res.ok) {
+          const errData = await res.json();
+          throw new Error(errData.error || 'Xatolik yuz berdi.');
+        }
+
+        const newProject = await res.json();
+        setProjects(prev => [...prev, newProject]);
+      }
+      handleCancel();
+    } catch (err: any) {
+      setError(err.message);
     }
-
-    setProjects(newProjectsList);
-    localStorage.setItem('portfolio_projects', JSON.stringify(newProjectsList));
-    handleCancel();
   };
 
   // Trigger delete confirmation modal
@@ -356,13 +393,32 @@ function Admin({
   };
 
   // Confirm delete
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (deletingProjectId) {
-      const newProjectsList = projects.filter(p => p.id !== deletingProjectId);
-      setProjects(newProjectsList);
-      localStorage.setItem('portfolio_projects', JSON.stringify(newProjectsList));
-      if (editingId === deletingProjectId) {
-        handleCancel();
+      try {
+        const res = await fetch(`/api/projects?id=${deletingProjectId}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${adminPassword}`
+          }
+        });
+
+        if (res.status === 401) {
+          onUnauthorized();
+          return;
+        }
+
+        if (!res.ok) {
+          const errData = await res.json();
+          throw new Error(errData.error || 'Xatolik yuz berdi.');
+        }
+
+        setProjects(prev => prev.filter(p => p.id !== deletingProjectId));
+        if (editingId === deletingProjectId) {
+          handleCancel();
+        }
+      } catch (err: any) {
+        setError(err.message);
       }
     }
     setShowDeleteModal(false);
@@ -549,6 +605,61 @@ function Admin({
 }
 
 // ============================================
+// ADMIN LOGIN COMPONENT
+// ============================================
+function AdminLogin({ 
+  onLogin, 
+  error, 
+  onNavigate 
+}: { 
+  onLogin: (pass: string) => void; 
+  error: string;
+  onNavigate: (path: string, e?: React.MouseEvent) => void;
+}) {
+  const [password, setPassword] = useState('');
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onLogin(password);
+  };
+
+  return (
+    <div className="admin-login-container">
+      <div className="admin-login-card">
+        <h1 className="admin-login-title">Admin Panel</h1>
+        <p className="admin-login-subtitle">Tizimga kirish uchun maxfiy parolni kiriting</p>
+        
+        <form onSubmit={handleSubmit}>
+          {error && <div className="admin-login-error">{error}</div>}
+          
+          <div className="form-group" style={{ textAlign: 'left' }}>
+            <label className="form-label" htmlFor="admin-pass">Admin paroli</label>
+            <input 
+              id="admin-pass"
+              type="password" 
+              className="form-input" 
+              value={password} 
+              onChange={e => setPassword(e.target.value)} 
+              placeholder="••••••••"
+              required
+              autoFocus
+            />
+          </div>
+          
+          <button type="submit" className="btn btn--primary" style={{ width: '100%', marginTop: '16px' }}>
+            Kirish
+          </button>
+          
+          <a href="/" className="admin-back-link" style={{ marginTop: '24px', justifyContent: 'center', display: 'flex' }} onClick={(e) => onNavigate('/', e)}>
+            Asosiy sahifaga qaytish
+          </a>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+// ============================================
 // APP RENDER
 // ============================================
 export default function App() {
@@ -558,22 +669,44 @@ export default function App() {
     return 'dark'
   })
 
-  const [projects, setProjects] = useState<Project[]>(() => {
-    const stored = localStorage.getItem('portfolio_projects')
-    if (stored) return JSON.parse(stored)
-    const initial = PROJECTS.map((p, idx) => ({
-      id: `project-${idx}-${Date.now()}`,
-      title: p.title,
-      desc: p.desc,
-      tags: p.tags,
-      github: p.github,
-      live: p.live
-    }))
-    localStorage.setItem('portfolio_projects', JSON.stringify(initial))
-    return initial
-  })
+  const [projects, setProjects] = useState<Project[]>([])
+  const [loading, setLoading] = useState(true)
+  
+  // Admin auth states
+  const [adminPassword, setAdminPassword] = useState<string | null>(() => localStorage.getItem('admin_password'))
+  const [loginError, setLoginError] = useState<string>('')
 
   const [currentRoute, setCurrentRoute] = useState(window.location.pathname)
+
+  // Fetch projects from DB
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        setLoading(true)
+        const res = await fetch('/api/projects')
+        if (!res.ok) {
+          throw new Error('Ma\'lumotlarni yuklab bo\'lmadi')
+        }
+        const data = await res.json()
+        setProjects(data)
+      } catch (err: any) {
+        console.error('Fetch error, falling back to local projects.json:', err)
+        // Fallback to local projects.json
+        const initial = PROJECTS.map((p, idx) => ({
+          id: `project-${idx}-${Date.now()}`,
+          title: p.title,
+          desc: p.desc,
+          tags: p.tags,
+          github: p.github,
+          live: p.live
+        }))
+        setProjects(initial)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchProjects()
+  }, [])
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
@@ -673,14 +806,41 @@ export default function App() {
     return () => window.removeEventListener('popstate', handlePopState)
   }, [])
 
+  const handleLogin = (password: string) => {
+    setAdminPassword(password)
+    localStorage.setItem('admin_password', password)
+    setLoginError('')
+  }
+
+  const handleUnauthorized = () => {
+    setLoginError('Kiritilgan parol noto\'g\'ri!')
+    setAdminPassword(null)
+    localStorage.removeItem('admin_password')
+  }
+
   const isAdmin = currentRoute === '/admin'
 
   return (
     <>
       <Navbar theme={theme} toggleTheme={toggleTheme} onNavigate={navigateTo} isAdmin={isAdmin} />
       <main>
-        {isAdmin ? (
-          <Admin projects={projects} setProjects={setProjects} onNavigate={navigateTo} />
+        {loading ? (
+          <div className="loading-container">
+            <div className="loading-spinner" />
+            <p style={{ color: 'var(--text-secondary)' }}>Loyihalar yuklanmoqda...</p>
+          </div>
+        ) : isAdmin ? (
+          !adminPassword ? (
+            <AdminLogin onLogin={handleLogin} error={loginError} onNavigate={navigateTo} />
+          ) : (
+            <Admin 
+              projects={projects} 
+              setProjects={setProjects} 
+              onNavigate={navigateTo} 
+              adminPassword={adminPassword} 
+              onUnauthorized={handleUnauthorized} 
+            />
+          )
         ) : (
           <>
             <Hero onNavigate={navigateTo} />
